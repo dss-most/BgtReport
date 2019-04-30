@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+    xmlns:beans="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+                    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+                    http://www.springframework.org/schema/security 
+                    http://www.springframework.org/schema/security/spring-security-3.1.xsd">
+  
+    <http auto-config="true" use-expressions="true">
+        <intercept-url pattern="/**" access="permitAll" />
+        <form-login />
+        <logout logout-url="/logout"/>
+    </http>
+    
+	<beans:bean id="adAuthenticationProvider"  class="org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider">
+    	<beans:constructor-arg value="dss.local" />
+    	<beans:constructor-arg value="ldap://wandy.dss.local/" />
+    	<beans:property name="userDetailsContextMapper" ref="dssUserMapper"/>
+	</beans:bean>
+	
+	<authentication-manager>
+		<authentication-provider ref="adAuthenticationProvider"/>
+		
+	</authentication-manager>
+	
+    <beans:bean id="dssUserMapper" class="th.go.dss.security.user.DssUserMapper">
+    	<beans:property name="backOfficeDao" ref="backOfficeDao"></beans:property>
+    </beans:bean>
+    
+   
+</beans:beans>   
