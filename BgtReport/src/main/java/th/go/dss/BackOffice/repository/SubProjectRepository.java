@@ -22,7 +22,8 @@ public interface SubProjectRepository extends
 			"	INNER JOIN subProject.project project " +
 			"	INNER JOIN project.product product " +
 			"WHERE project.fiscalYear = :fiscalYear " +
-			"	AND product.code like '19003%' " +
+			"	AND subProject.owner is not null "	+
+//			"	AND product.code like '19003%' " +
 			"ORDER BY subProject.abbr ASC " +
 			"")
 	public List<SubProject> findByFiscalYear(@Param("fiscalYear") Integer fiscalYear);
@@ -34,7 +35,7 @@ public interface SubProjectRepository extends
 			"	INNER JOIN project.product product " +
 			"WHERE project.fiscalYear = :fiscalYear " +
 			"	AND subProject.owner.id = :ownerId " +
-			"	AND product.code like '19003%' " +
+//			"	AND product.code like '19003%' " +
 			"ORDER BY subProject.abbr ASC " +
 			"")
 	public List<SubProject> findByFiscalYearAndOwner(
@@ -119,6 +120,14 @@ public interface SubProjectRepository extends
 			"	LEFT OUTER JOIN approvals.budgetUsage bu " +
 			"WHERE item = ?1 " )
 	public PurchaseRequest findPurchaseRequestByAllocItem(BudgetAllocationItem item);
+
+	
+	@Query(""
+			+ "SELECT DISTINCT project.fiscalYear "
+			+ "FROM  Project project "
+			+ "WHERE project.fiscalYear is not null "
+			+ "ORDER BY project.fiscalYear desc ")
+	public List<Integer> findFiscalYear();
 	
 	
 }

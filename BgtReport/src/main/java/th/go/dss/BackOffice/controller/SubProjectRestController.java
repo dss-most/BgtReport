@@ -38,6 +38,13 @@ public class SubProjectRestController {
 	@Autowired private SubProjectRepository subProjectRepository;
 	
 	
+	@RequestMapping("/SubProjects/listAllFiscalYear") 
+	public @ResponseBody List<Integer> findFiscalYear() {
+		List<Integer> fiscalYears = subProjectRepository.findFiscalYear();
+		return fiscalYears;
+	}
+		
+	
 	
 	@RequestMapping("/SubProjects/{fiscalYear}/{organizationId}")
 	public @ResponseBody List<SubProject> findByFiscalYearAndOwner(
@@ -61,7 +68,11 @@ public class SubProjectRestController {
 			List<SubProject> spList = subProjectRepository.findByFiscalYear(fiscalYear);
 			Hashtable<Integer, SubProjectBudget> hashTable = new Hashtable<Integer, SubProjectBudget>(); 
 			
+			logger.debug("spList.size() : " + spList.size());
+			
 			for(SubProject sp : spList) {
+				logger.debug("subproject: " + sp.getAbbr() +"("+sp.getId()+")");
+				
 				SubProjectBudget spb = new SubProjectBudget(sp);
 				list.add(spb);
 				hashTable.put(sp.getId(), spb);
