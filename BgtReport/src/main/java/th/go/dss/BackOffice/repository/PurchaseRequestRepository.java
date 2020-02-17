@@ -54,8 +54,11 @@ public interface PurchaseRequestRepository extends
 			+ "	AND purchaseRequest.cancelFlag <> '1' "
 			+ " AND purchaseApprovalItemized.id not in  "
 			+ " ( select budgetUsage_1.purchaseApprovalItemized.id "
-			+ "		from BudgetUsage budgetUsage_1"
-			+ "		 where budgetUsage_1.purchaseApprovalItemized.id is not null"
+			+ "		from BudgetUsage budgetUsage_1 "
+			+ "				inner join budgetUsage_1.budgetAllocation budgetAllocation "
+			+ "				inner join BudgetAllocation.subProject subProject_1 "
+			+ "		 where budgetUsage_1.purchaseApprovalItemized.id is not null "
+			+ "			and subProject_1.abbr = :subProjectAbbr "
 			+ " ) "
 			+ "AND project.fiscalYear = :fiscalYear  "
 			)

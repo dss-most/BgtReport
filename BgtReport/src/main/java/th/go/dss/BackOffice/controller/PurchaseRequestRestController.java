@@ -64,6 +64,7 @@ public class PurchaseRequestRestController {
 				
 		for(PurchaseApprovalItemized pai : page) {
 			pai.getPurchaseRequest();
+			logger.debug(pai.getPurchaseRequest().getSubProject().getOwner().getAbbr());
 			logger.debug("-> " + pai.getPurchaseRequest().getPcmNumber());
 			pai.getPurchaseRequest().setCreatedDate(Timestamp.valueOf(pai.getPurchaseRequest().getCreatedDate().toString()));
 			Integer s = pai.getPurchaseRequest().getPurchaseLineItems().size();
@@ -105,6 +106,8 @@ public class PurchaseRequestRestController {
 				fiscalYear, subProjectAbbr, pageSpecification);
 				
 		for(PurchaseRequest purchaseRequest : page) {
+			logger.debug(purchaseRequest.getSubProject().getOwner().getAbbr());
+			
 			logger.debug("-> " + purchaseRequest.getPcmNumber());
 			purchaseRequest.setCreatedDate(Timestamp.valueOf(purchaseRequest.getCreatedDate().toString()));
 			Integer s = purchaseRequest.getPurchaseLineItems().size();

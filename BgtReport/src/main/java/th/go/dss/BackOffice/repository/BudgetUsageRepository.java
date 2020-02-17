@@ -34,7 +34,7 @@ public interface BudgetUsageRepository extends
 			" 	inner join budgetAllocation.subProject subProject " +
 			" 	inner join subProject.project project " +
 			"where budgetUsage.voucherNumber is null " +
-			"	AND budgetUsage.status = 2" +
+			"	AND budgetUsage.status in (1, 2) " +
 			"	AND project.fiscalYear = :fiscalYear " +
 			"	AND subProject.abbr like :subProjectAbbr " +
 			"	AND budgetUsage.cancelFlag is null " +

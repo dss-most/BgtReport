@@ -32,7 +32,23 @@ public class PurchaseApprovalItemized {
 	
 	@OneToOne(fetch=FetchType.LAZY, mappedBy="purchaseApprovalItemized")
 	private BudgetUsage budgetUsage;
-
+	
+	@ManyToOne
+	@JoinColumn(name="VENDOR_VENDOR_ID")
+	private Vendor vendor;
+	
+	@Column(name="APP_PERIOD_NO")
+	private String periodNo;
+	
+	@Column(name="PERIOD_FULL_MON")
+	private String periodFullMonth;
+	
+	@Column(name="ITEM_AMT")
+	private Double itemAmount;
+	
+	
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -63,6 +79,38 @@ public class PurchaseApprovalItemized {
 
 	public void setBudgetUsage(BudgetUsage budgetUsage) {
 		this.budgetUsage = budgetUsage;
+	}
+
+	public Vendor getVendor() {
+		return vendor;
+	}
+
+	public void setVendor(Vendor vendor) {
+		this.vendor = vendor;
+	}
+
+	public String getPeriodNo() {
+		return periodNo;
+	}
+
+	public void setPeriodNo(String periodNo) {
+		this.periodNo = periodNo;
+	}
+
+	public String getPeriodFullMonth() {
+		return periodFullMonth;
+	}
+
+	public void setPeriodFullMonth(String periodFullMonth) {
+		this.periodFullMonth = periodFullMonth;
+	}
+
+	public Double getItemAmount() {
+		return itemAmount;
+	}
+
+	public void setItemAmount(Double itemAmount) {
+		this.itemAmount = itemAmount;
 	}
 	
 	

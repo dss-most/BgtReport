@@ -76,11 +76,42 @@
 	</div>
 </div>
 </script>
+<script id="tablePCMItemizedTemplate" type="text/x-handlebars-template">
+  <table class="table table-bordered">
+    <thead>
+	  <th width="70">โครงการ</th>
+      <th width="150">เลขที่ PCM</th>
+	  <th>รายละเอียด</th>
+	  <th width="100">ประมาณการ</th>
+    </thead>
+    <tbody>
+      {{#each this}}
+        <tr>
+		  <td><strong>{{purchaseRequest.subProjectAbbr}}</strong> <br/>({{purchaseRequest.owner.abbr}})</td>
+          <td>{{appNo}}<br/>{{formatShortDateBuddhist purchaseRequest.createdDate}}<br/>
+		  </td>
+		  <td>{{{purchaseRequest.subject}}} ({{vendor.companyName}} {{periodNo}})<br/><span class="label label-info">รายละเอียด</span><br/>
+				<ol>
+					{{#each purchaseRequest.purchaseLineItems}}
+						{{#if this}}
+						<li>{{description}} จำนวน {{totalUnit}} {{uom}} @ {{formatDecimal unitPrice}} บาท รวมเป็นเงิน {{formatDecimal totalBudget}} บาท</li>
+						{{/if}}
+					{{/each}}
+				</ol>
+			  <span class="label label-important">สถานะ</span> {{purchaseRequest.status.state}} {{#if purchaseRequest.assignedToName}} -- {{/if}}{{purchaseRequest.assignedToName}}
+		  </td>	
+          <td style="text-align: right;">{{formatDecimal itemAmount}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+</script>
+
 <script id="tablePCMTemplate" type="text/x-handlebars-template">
   <table class="table table-bordered">
     <thead>
 	  <th width="70">โครงการ</th>
-      <th width="140">เลขที่ PCM</th>
+      <th width="150">เลขที่ PCM</th>
 	  <th>รายละเอียด</th>
 	  <th width="100">ประมาณการ</th>
     </thead>
@@ -110,7 +141,7 @@
   <table class="table table-bordered">
     <thead>
 	  <th width="70">โครงการ</th>
-      <th width="140">เลขที่ BGT</th>
+      <th width="150">เลขที่ BGT</th>
       <th>รายละเอียด</th>
       <th width="100">จำนวนเงิน</th>
     </thead>
@@ -120,13 +151,15 @@
 		  <td><strong>{{subProjectAbbr}}</strong> <br/>({{owner.abbr}})</td>
           <td>{{bgtCode}}<br/>{{formatShortDateBuddhist createdDate}} ({{createdByUser.loginName}})</td>
           <td>{{subject}}<br/><span class="label label-info">รายละเอียด</span><br/><ol>{{{moreDescription}}}</ol></td>
-          <td style="text-align: right;">{{formatDecimal paidAmount}}</td>
+          <td style="text-align: right;">{{amountDisplay this}}</td>
         </tr>
       {{/each}}
     </tbody>
   </table>
 </script>
-
+<script id="LoadingReportTemplate" type="text/x-handlebars-template">
+	<span id="loading"> Loading Report <img src="<c:url value='/resources/images/loading3.gif'/>"/> </span>
+</script>
 
 <script>
 var buc1, buc2;
@@ -151,18 +184,23 @@ var appView = Backbone.View.extend({
 	},
 	
 	fillSubProjectTable : function(e) {
+		this.emptyResult();
 		var fiscalYear = $('#fiscalyearSlt').val();
 		var subProjectAbbr = $("#subProjectSlt").val();
 		
-		prc.url = myUrl("PurchaseRequests/" + fiscalYear + "/" + subProjectAbbr.replace("/", "__") + "/findNotYetApproveOrBudgetUsage");
+		prcResultView.renderLoading();
+		prc.url = myUrl("PurchaseRequests/" + fiscalYear + "/" + subProjectAbbr.replace("/", "__") + "/findItemizedNotYetApproveOrBudgetUsage");
 		prc.fetch();
 		
+		buc1ResultView.renderLoading();
 		buc1.url = myUrl("BudgetUsages/" + fiscalYear + "/" + subProjectAbbr.replace("/", "__") + "/findSubmitNoVoucherNumber");
 		buc1.fetch();
 		
+		buc2ResultView.renderLoading();
 		buc2.url = myUrl("BudgetUsages/" + fiscalYear + "/" + subProjectAbbr.replace("/", "__") + "/findVoucherNumberNoDGA");
 		buc2.fetch();
 		
+		buc3ResultView.renderLoading();
 		buc3.url = myUrl("BudgetUsages/" + fiscalYear + "/" + subProjectAbbr.replace("/", "__") + "/findVoucherNumberDGA");
 		buc3.fetch();
 
@@ -219,6 +257,16 @@ var appView = Backbone.View.extend({
 	
 });
 
+
+Handlebars.registerHelper("amountDisplay", function(json) {
+	var number =0;
+	if(json.voucherNumber == null) {
+		number = json.approvedAmount;
+	} else {
+		number = json.paidAmount;
+	}
+	return $.formatNumber(number, {format:"#,###.00", locale:"us"});
+});
 
 $(document).ready(function () {
 	appView = new appView();
@@ -285,7 +333,10 @@ $(document).ready(function () {
 			"click li.loadPageCls" : "loadPage"
 			
 		},
-		
+		renderLoading: function() {
+			this.firstDiv.html("<h4>"+ this.rightIcon + this.header + 
+					"<span> Loading <img src='<c:url value='/resources/images/loading3.gif'/>'/></span></h4>");
+		},
 		loadPage: function(e) {
 			e.preventDefault();
 			var pageClick = $(e.target).attr('data-id');
@@ -299,6 +350,7 @@ $(document).ready(function () {
 		},
 
 		toggleFirstDiv : function(e) {
+			 e.preventDefault();
 			this.firstDiv.find('i').toggleClass("icon-chevron-right icon-chevron-down");
 			this.secondDiv.toggle();	
 		},
@@ -360,10 +412,12 @@ $(document).ready(function () {
 		el: "#prcResultTable",
 		collection: prc
 	});
+	
+	
+	
 	prcResultView.setOptions({
-		notCount: true,
-		header:"รายการ PCM ที่ยังไม่ได้ส่งเบิก",
-		resultTemplate: "#tablePCMTemplate"
+		header:"รายการ PCM ที่ยังไม่ได้ส่งเบิก <span></span>",
+		resultTemplate: "#tablePCMItemizedTemplate"
 	});
 	
 	buc1ResultView = new ResultView({
@@ -371,7 +425,7 @@ $(document).ready(function () {
 		collection: buc1
 	});
 	buc1ResultView.setOptions({
-		header:"รายการ BGT ส่งเบิกแล้วแต่ยังไม่มีเลขที่งบประมาณรับ",
+		header:"รายการ BGT เตรียมส่งเบิกแล้วแต่ยังไม่มีเลขที่งบประมาณรับ <span></span>",
 		resultTemplate: "#tableBGTTemplate"
 	});
 	
@@ -380,7 +434,7 @@ $(document).ready(function () {
 		collection: buc2
 	});
 	buc2ResultView.setOptions({
-		header:"รายการ BGT งบประมาณรับแล้วแต่ยังไม่มีเลขที่ฎีกา",
+		header:"รายการ BGT งบประมาณรับแล้วแต่ยังไม่มีเลขที่ฎีกา <span></span>",
 		resultTemplate: "#tableBGTTemplate"
 	});
 	
@@ -390,9 +444,11 @@ $(document).ready(function () {
 		collection: buc3
 	});
 	buc3ResultView.setOptions({
-		header:"รายการ BGT ที่มีเลขที่ฎีกา",
+		header:"รายการ BGT ที่มีเลขที่ฎีกา <span></span>",
 		resultTemplate: "#tableBGTTemplate"
 	});
 });
+
+
 </script>
 
