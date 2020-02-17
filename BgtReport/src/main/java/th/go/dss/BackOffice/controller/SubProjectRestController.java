@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import th.go.dss.BackOffice.model.BGT.BudgetAllocationItem;
+import th.go.dss.BackOffice.model.HRX.Organization;
 import th.go.dss.BackOffice.model.PCM.PurchaseRequest;
 import th.go.dss.BackOffice.model.PLN.BudgetAllocationItemWeb;
 import th.go.dss.BackOffice.model.PLN.SubProject;
@@ -43,7 +44,12 @@ public class SubProjectRestController {
 		List<Integer> fiscalYears = subProjectRepository.findFiscalYear();
 		return fiscalYears;
 	}
-		
+	
+	@RequestMapping("/SubProjects/listAllOrganization/{fiscalYear}")
+	public @ResponseBody List<Organization> findAllOrganizationfrom(
+			@PathVariable Integer fiscalYear){
+		return subProjectRepository.findAllOrganizationFromFiscalYear(fiscalYear);
+	}
 	
 	
 	@RequestMapping("/SubProjects/{fiscalYear}/{organizationId}")

@@ -33,7 +33,7 @@
 			<bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
                 
                 <property name="database" value="ORACLE" />
-				<property name="showSql" value="false"/>
+				<property name="showSql" value="true"/>
 				<property name="generateDdl" value="false"/>
 				<property name="databasePlatform" value="org.hibernate.dialect.Oracle10gDialect" />
 			</bean>

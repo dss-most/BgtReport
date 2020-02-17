@@ -73,14 +73,47 @@ public class BudgetUsageRestController {
 		
 	}
 	
+	
+	@RequestMapping(value="/BudgetUsages/{fiscalYear}/{subProjectAbbr}/findVoucherNumberDGA",method=RequestMethod.GET)
+	public @ResponseBody Page<BudgetUsage> getBudgetUsagewithCheckStatusAndDGA(
+			@PathVariable Integer fiscalYear,
+			@PathVariable String subProjectAbbr,
+			@RequestParam(required=false) Integer index
+			){
+		if(index == null ) {
+			index=0;
+		}
+		
+		if("ALL_SUBPROJECT".equals(subProjectAbbr)) {
+			subProjectAbbr = "%";
+		} else {
+			// now change __ back to /
+			subProjectAbbr = subProjectAbbr.replaceAll("__", "/");
+			logger.debug("subProjectAbbr = " + subProjectAbbr);
+		}
+		
+		Pageable pageSpecification = new PageRequest(index, 20, new Sort(Direction.DESC, "voucherDate") );
+		
+		Page<BudgetUsage> page = budgetUsageRepository.findVoucherNumberDGA
+				(fiscalYear, subProjectAbbr, pageSpecification);
+		
+		// now we'll get the corresponding project
+		for(BudgetUsage buLoop : page.getContent()) {
+			buLoop.setCreatedDate(Timestamp.valueOf(buLoop.getCreatedDate().toString()));
+			logger.debug(buLoop.getVoucherDate().toString());
+			buLoop.getSubProjectAbbr();
+			buLoop.getCreatedByUser().getLoginName();
+		}
+		
+		return page;
+		
+	}
 	@RequestMapping(value="/BudgetUsages/{fiscalYear}/{subProjectAbbr}/findVoucherNumberNoDGA",method=RequestMethod.GET)
 	public @ResponseBody Page<BudgetUsage> getBudgetUsagewithCheckStatusAndNoDGA(
 			@PathVariable Integer fiscalYear,
 			@PathVariable String subProjectAbbr,
 			@RequestParam(required=false) Integer index
 			){
-		
-		
 		if(index == null ) {
 			index=0;
 		}

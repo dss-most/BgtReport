@@ -50,10 +50,27 @@ public interface BudgetUsageRepository extends
 			" 	inner join budgetAllocation.subProject subProject " +
 			" 	inner join subProject.project project " +
 			"where budgetUsage.voucherNumber is not null " +
+			"	AND budgetUsage.dgaCode is not null " +
+			"	AND project.fiscalYear = :fiscalYear " +
+			"	AND subProject.abbr like :subProjectAbbr " +
+			"	AND budgetUsage.cancelFlag is null "
+			+ "order by budgetUsage.id desc " +
+			"")
+	Page<BudgetUsage> findVoucherNumberDGA(@Param("fiscalYear") Integer fiscalYear,
+			@Param("subProjectAbbr") String subProjectAbbr,
+			Pageable pageSpecification);
+	
+	@Query("select budgetUsage " +
+			"from BudgetUsage budgetUsage " +
+			"	inner join budgetUsage.budgetAllocation budgetAllocation " +
+			" 	inner join budgetAllocation.subProject subProject " +
+			" 	inner join subProject.project project " +
+			"where budgetUsage.voucherNumber is not null " +
 			"	AND budgetUsage.dgaCode is null " +
 			"	AND project.fiscalYear = :fiscalYear " +
 			"	AND subProject.abbr like :subProjectAbbr " +
-			"	AND budgetUsage.cancelFlag is null " +
+			"	AND budgetUsage.cancelFlag is null "
+			+ "order by budgetUsage.id desc " +
 			"")
 	Page<BudgetUsage> findVoucherNumberNoDGA(@Param("fiscalYear") Integer fiscalYear,
 			@Param("subProjectAbbr") String subProjectAbbr,

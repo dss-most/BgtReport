@@ -39,6 +39,9 @@ public class PurchaseRequest {
 	@OneToMany(mappedBy="purchaseRequest")
 	private Set<PurchaseApproval> purchaseApprovals;
 	
+	@OneToMany(mappedBy="purchaseRequest")
+	private Set<PurchaseApprovalItemized> purchaseApprovalItemizeds;
+	
 	@Temporal(TemporalType.TIMESTAMP)
 	@Column(name="CREATE_DATE")
 	private Date createdDate;

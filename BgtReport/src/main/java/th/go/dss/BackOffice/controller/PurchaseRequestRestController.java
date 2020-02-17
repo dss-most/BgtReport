@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
+import th.go.dss.BackOffice.model.PCM.PurchaseApprovalItemized;
 import th.go.dss.BackOffice.model.PCM.PurchaseRequest;
 import th.go.dss.BackOffice.repository.PurchaseRequestRepository;
 
@@ -33,6 +34,49 @@ public class PurchaseRequestRestController {
 	private static final Logger logger = LoggerFactory.getLogger(PurchaseRequestRestController.class);
 	
 	@Autowired private PurchaseRequestRepository purchaseRequestRepository;
+	
+	
+	@RequestMapping("/PurchaseRequests/{fiscalYear}/{subProjectAbbr}/findItemizedNotYetApproveOrBudgetUsage")
+	@Transactional
+	public @ResponseBody Page<PurchaseApprovalItemized> findItemizedNotYetApproveOrBudgetUsage(
+			@PathVariable String subProjectAbbr,
+			@PathVariable Integer fiscalYear,
+			@RequestParam(required=false) Integer index){
+		
+		if(index == null) {
+			index = 0;
+		}
+		
+		if("ALL_SUBPROJECT".equals(subProjectAbbr)) {
+			subProjectAbbr = "%";
+		} else {
+			// now change __ back to /
+			subProjectAbbr = subProjectAbbr.replaceAll("__", "/");
+			logger.debug("subProjectAbbr = " + subProjectAbbr);
+		}
+		
+		Pageable pageSpecification = new PageRequest(0, 2000, new Sort(Direction.DESC, "id") );
+		
+		logger.debug("testing");
+		
+		Page<PurchaseApprovalItemized> page = purchaseRequestRepository.findPurchaseApprovalItemizedNotYetApproveOrBudgetUsage(
+				fiscalYear, subProjectAbbr, pageSpecification);
+				
+		for(PurchaseApprovalItemized pai : page) {
+			pai.getPurchaseRequest();
+			logger.debug("-> " + pai.getPurchaseRequest().getPcmNumber());
+			pai.getPurchaseRequest().setCreatedDate(Timestamp.valueOf(pai.getPurchaseRequest().getCreatedDate().toString()));
+			Integer s = pai.getPurchaseRequest().getPurchaseLineItems().size();
+			logger.debug("  purchaseLineItems size = " +  s);
+			if(pai.getPurchaseRequest().getPurchaseApprovals().size()<1) {
+				pai.getPurchaseRequest().getSubProjectAbbr();
+			}	
+		}
+		
+		//logger.debug("-> " + page.getTotalElements());
+		return page;
+		
+	}
 	
 	@RequestMapping("/PurchaseRequests/{fiscalYear}/{subProjectAbbr}/findNotYetApproveOrBudgetUsage")
 	@Transactional

@@ -8,14 +8,9 @@
 		<div class="span12">
 			<label>กรุณาเลือกปีงบประมาณ : </label>
 				<select name="fiscalyear" id="fiscalyearSlt" class="span2">
-							<option>2553</option>
-							<option>2554</option>
-							<option>2555</option>
-							<option>2556</option>
-							<option>2557</option>
-							<option>2558</option>
-							<option>2559</option>
-							<option selected="selected">2560</option>
+							<c:forEach var="year" items="${fiscalYears}">
+	         						<option value="${year}">${year}</option>
+	      					 </c:forEach>
 				</select> 
 			<select name="reportSlt" id="reportSlt" class="span6">
 				<option value="noReport">กรุณาเลื่อกรายงาน...</option>

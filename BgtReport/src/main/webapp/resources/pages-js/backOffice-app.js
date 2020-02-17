@@ -91,6 +91,10 @@ var SubProject = Backbone.Model.extend({
 	urlRooe : myUrl('SubProject')
 });
 
+var Organization = Backbone.Model.extend({
+	idAttribute : "id"
+});
+
 /** Collection **/
 var SubProjectBudgetCollection = Backbone.Collection.extend({
 	model: SubProjectBudget
@@ -126,6 +130,13 @@ var PurchaseRequestCollection = Backbone.Collection.extend({
 
 var SubProjectCollection = Backbone.Collection.extend({
 	model : SubProject,
+	parse : function(response) {
+		return response;
+	}
+});
+
+var OrganizationCollection = Backbone.Collection.extend({
+	model : Organization,
 	parse : function(response) {
 		return response;
 	}

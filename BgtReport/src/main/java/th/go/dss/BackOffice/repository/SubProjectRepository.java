@@ -130,5 +130,15 @@ public interface SubProjectRepository extends
 	public List<Integer> findFiscalYear();
 	
 	
+	@Query(""
+			+ "SELECT DISTINCT owner "
+			+ "FROM SubProject subProject "
+			+ "	INNER JOIN subProject.owner owner "
+			+ "WHERE owner is not null "
+			+ "	AND subProject.project.fiscalYear = ?1 "
+			+ "ORDER BY owner.id asc ")	
+	public List<Organization> findAllOrganizationFromFiscalYear(Integer fiscalYear);
+	
+	
 }
  

@@ -19,6 +19,7 @@ import org.hibernate.annotations.Formula;
 
 import th.go.dss.BackOffice.model.HRX.Organization;
 import th.go.dss.BackOffice.model.PCM.PurchaseApproval;
+import th.go.dss.BackOffice.model.PCM.PurchaseApprovalItemized;
 import th.go.dss.BackOffice.model.USR.User;
 
 @Entity
@@ -91,6 +92,11 @@ public class BudgetUsage {
 	@JoinColumn(name="PROC_APP_ID")
 	@JsonBackReference("purchaseApproval-budgetUsage")
 	private PurchaseApproval purchaseApproval;
+	
+	@OneToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name="PROC_ITEM_APP_ID")
+	@JsonBackReference("purchaseApprovalItemized-budgetUsage")
+	private PurchaseApprovalItemized purchaseApprovalItemized;
 	
 	public Integer getId() {
 		return id;
@@ -252,6 +258,26 @@ public class BudgetUsage {
 
 	public void setPurchaseApproval(PurchaseApproval purchaseApproval) {
 		this.purchaseApproval = purchaseApproval;
+	}
+
+	public PurchaseApprovalItemized getPurchaseApprovalItemized() {
+		return purchaseApprovalItemized;
+	}
+
+	public void setPurchaseApprovalItemized(PurchaseApprovalItemized purchaseApprovalItemized) {
+		this.purchaseApprovalItemized = purchaseApprovalItemized;
+	}
+
+	public void setSubProjectAbbr(String subProjectAbbr) {
+		this.subProjectAbbr = subProjectAbbr;
+	}
+
+	public void setSubProjectName(String subProjectName) {
+		this.subProjectName = subProjectName;
+	}
+
+	public void setOwner(Organization owner) {
+		this.owner = owner;
 	}
 
 	

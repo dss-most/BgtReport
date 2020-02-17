@@ -6,22 +6,15 @@
 <div class="container">
 	<div class="row">
 		<div class="span12">
-			<label>กรุณาเลือกปีงบประมาณ : </label>
+			<label>ปีงบประมาณ : </label>
 				<select name="fiscalyear" id="fiscalyearSlt" class="span2">
-							<option>2553</option>
-							<option>2554</option>
-							<option>2555</option>
-							<option>2556</option>
-							<option>2557</option>
-							<option>2558</option>
-							<option>2559</option>
-							<option selected="selected">2560</option>
+							<option value="0">กรุณาเลือกปีงบประมาณ</option>
+							<c:forEach var="year" items="${fiscalYears}">
+	         						<option value="${year}">${year}</option>
+	      					 </c:forEach>
 				</select> 
 				<select name="organizationSlt" id="organizationSlt" class="span2">
-					<option selected="selected">เลือกสำนัก/โครงการ...</option>
-					<c:forEach var="organization" items="${organizations}">
-						<option value="${organization.id}">${organization.abbr}</option>
-					</c:forEach>
+					
 				</select>
 			<select name="subProjectSlt" id="subProjectSlt" class="span6">
 			</select>
@@ -30,18 +23,29 @@
 	<div class="row"> 
 		<div class="span12"  id="prcResultTable">
 			<div></div>
-			<div></div>
+			<div style="display: none;"></div>
 		</div>
 		<div class="span12"  id="buc1ResultTable">
 			<div></div>
-			<div></div>
+			<div style="display: none;"></div>
 		</div>
 		<div class="span12" id="buc2ResultTable">
 			<div></div>
+			<div style="display: none;"></div>
+		</div>
+		<div class="span12" id="buc3ResultTable">
 			<div></div>
+			<div style="display: none;"></div>
 		</div>
 	</div>
 </div>
+
+<script id="organizationSltTemplate" type="text/x-handlebars-template">
+	<option selected="selected">เลือกสำนัก/โครงการ...</option>
+	{{#each this}}
+			<option value="{{id}}">{{abbr}}</option>
+	{{/each}}
+</script>
 
 <script id="subProjectSltTemplate" type="text/x-handlebars-template">
 <option selected="selected">กรุณาเลือกโครงการ...</option>
@@ -58,13 +62,13 @@
 	<div class="pagination">
 		<ul>
 			{{#if firstSkipIndex}}
-				<li><a href="#" id=loadPageLink_{{firstSkipIndex}}>«</a></li>
+				<li><a href="#" data-id={{firstSkipIndex}}>«</a></li>
 			{{/if}}
 			{{#each this.out}}
-				<li class="{{cssClass}}"><a href="#" id="loadPageLink_{{index}}">{{index}}</a></li>
+				<li class="{{cssClass}} loadPageCls"><a href="#" data-id="{{index}}">{{index}}</a></li>
 			{{/each}}
 			{{#if lastSkipIndex}}
-				<li><a href="#" id=loadPageLink_{{lastSkipIndex}}>»</a></li>
+				<li><a href="#" data-id={{lastSkipIndex}}>»</a></li>
 			{{/if}}
 		</ul>
 	</div>
@@ -127,7 +131,6 @@
 <script>
 var buc1, buc2;
 var ResultView;
-var resultView;
 var appView;
 var subProjectSltView;
 var bucResultView;
@@ -140,7 +143,7 @@ var appView = Backbone.View.extend({
 		"change #subProjectSlt": "fillSubProjectTable",
 		"change #fiscalyearSlt": "fillOrganizationSlt",
 		"change #organizationSlt": "fillSubProjectSlt",
-		"click a[id*=loadPageLink_]" : "loadPage"
+		"click a.loadPageCls" : "loadPage"
 	},
 	
 	render: function() {
@@ -160,12 +163,42 @@ var appView = Backbone.View.extend({
 		buc2.url = myUrl("BudgetUsages/" + fiscalYear + "/" + subProjectAbbr.replace("/", "__") + "/findVoucherNumberNoDGA");
 		buc2.fetch();
 		
+		buc3.url = myUrl("BudgetUsages/" + fiscalYear + "/" + subProjectAbbr.replace("/", "__") + "/findVoucherNumberDGA");
+		buc3.fetch();
 
 	},
-	fillOrganizationSlt : function(e) {
+	emptyResult : function() {
+		prcResultView.emptyPage();
+		prcResultView.secondDiv.hide();
+		
+		buc1ResultView.emptyPage();
+		buc1ResultView.secondDiv.hide();
+		
+		buc2ResultView.emptyPage();
+		buc2ResultView.secondDiv.hide();
+		
+		buc3ResultView.emptyPage();
+		buc3ResultView.secondDiv.hide();
 		
 	},
+	fillOrganizationSlt : function(e) {
+		this.emptyResult();
+		subProjectSltView.empty();
+		
+		
+		var fiscalYear = $("#fiscalyearSlt").val();
+		if(fiscalYear != 0) {
+			oc.url = myUrl("SubProjects/listAllOrganization/" + fiscalYear);
+			oc.fetch();
+		} else {
+			oc.reset();
+		}
+	},
+	
 	fillSubProjectSlt: function(e) {
+		this.emptyResult();
+		
+		
 		var organizationId = $("#organizationSlt").val();
 		var fiscalYear = $("#fiscalyearSlt").val();
 		spc.url = myUrl("SubProjects/" + fiscalYear + "/" + organizationId);
@@ -173,9 +206,13 @@ var appView = Backbone.View.extend({
 	},
 	
 	loadPage: function(e) {
-		var targetId = e.target.id;
+		//var targetId = e.target.id;
 		//console.log(targetId);
-		var pageClick = targetId.split('_')[1];
+		//var pageClick = targetId.split('_')[1];
+		
+		e.preventDefault();
+		var pageClick = $(e.target).attr('data-id');
+		//console.log("Loading Page : " + pageClick);
 		
 		resultView.loadPage(pageClick-1);
 	}
@@ -188,8 +225,28 @@ $(document).ready(function () {
 	
 	buc1 = new BudgetUsageCollection();
 	buc2 = new BudgetUsageCollection();
+	buc3 = new BudgetUsageCollection();
 	prc = new PurchaseRequestCollection();
 	spc = new SubProjectCollection();
+	oc = new OrganizationCollection();
+	
+	OrganizationSltView = Backbone.View.extend({
+		initialize : function() {
+			_.bindAll(this, "render");
+			// Once the collection is fetched re-render the view
+			this.collection.bind("reset", this.render);
+		},
+		
+		template: Handlebars.compile($("#organizationSltTemplate").html()),
+		el: "#organizationSlt",
+		collection : oc,
+		render: function() {
+			//console.log("rendering organizationSltView");
+			//console.log(this.collection.toJSON());
+			$(this.el).html(this.template(this.collection.toJSON()));
+		}
+	});
+	
 	
 	SubProjectSltView = Backbone.View.extend({
 		initialize : function() {
@@ -201,6 +258,9 @@ $(document).ready(function () {
 		template: Handlebars.compile($("#subProjectSltTemplate").html()),
 		el: "#subProjectSlt",
 		collection : spc,
+		empty: function() {
+			$(this.el).empty();
+		},
 		render: function() {
 			//console.log("rendering subProjecSltView");
 			//console.log(this.collection.toJSON());
@@ -221,7 +281,21 @@ $(document).ready(function () {
 	        
 		},
 		events: {
-			"click a" : "toggleFirstDiv"
+			"click a.firstDivCls" : "toggleFirstDiv",
+			"click li.loadPageCls" : "loadPage"
+			
+		},
+		
+		loadPage: function(e) {
+			e.preventDefault();
+			var pageClick = $(e.target).attr('data-id');
+			//console.log("Loading Page : " + (pageClick-1));
+			
+			this.collection.fetch({
+				data: {
+					index: pageClick-1
+				}
+			});
 		},
 
 		toggleFirstDiv : function(e) {
@@ -234,30 +308,35 @@ $(document).ready(function () {
         render: function() {
 			//console.log("render");
 			var json = this.collection.toJSON();
+			
+			//console.log(json);
 			var html = this.templateTable(json);
 			
 			var totalElements = this.collection.page.get('totalElements');
 			
 			if(this.notCount) {
-				this.firstDiv.html("<h4><a href='#'>"+ this.rightIcon + this.header +  "</a></h4>");
-				this.secondDiv.hide();
+				this.firstDiv.html("<h4><a href='#' class='firstDivCls'>"+ this.rightIcon + this.header +  "</a></h4>");
+				// this.secondDiv.hide();
 				var json = this.collection.page.outputJSON();
 				json.isOnePage = true;
 				this.secondDiv.html(this.templatePage(json));
 				this.secondDiv.append(html);
 			} else {
-				this.firstDiv.html("<h4><a href='#'>"+ this.rightIcon + this.header + " (" + totalElements +  ") รายการ   </a></h4>");
-				this.secondDiv.hide();
+				this.firstDiv.html("<h4><a href='#' class='firstDivCls'>"+ this.rightIcon + this.header + " (" + totalElements +  ") รายการ   </a></h4>");
+				
+				
+				
+				//this.secondDiv.hide();
 				this.secondDiv.html(this.templatePage(this.collection.page.outputJSON()));
 				this.secondDiv.append(html);
 			}
-			
-			
-			
 		},
-		
-		loadPage: function(pageIndex) {
-			this.collection.fetch({data:{index: pageIndex}});
+		emptyPage: function() {
+			this.firstDiv.empty();
+			if(this.secondDiv != null) {
+				this.secondDiv.empty();	
+			}
+			
 		},
 		
 		setOptions: function(options) {
@@ -275,6 +354,8 @@ $(document).ready(function () {
 	});
 	
 	subProjectSltView = new SubProjectSltView();
+	organizationSltView = new OrganizationSltView();
+	
 	prcResultView = new ResultView({
 		el: "#prcResultTable",
 		collection: prc
@@ -303,6 +384,15 @@ $(document).ready(function () {
 		resultTemplate: "#tableBGTTemplate"
 	});
 	
+	
+	buc3ResultView = new ResultView({
+		el: "#buc3ResultTable", 
+		collection: buc3
+	});
+	buc3ResultView.setOptions({
+		header:"รายการ BGT ที่มีเลขที่ฎีกา",
+		resultTemplate: "#tableBGTTemplate"
+	});
 });
 </script>
 

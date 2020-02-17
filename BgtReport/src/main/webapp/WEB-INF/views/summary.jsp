@@ -17,23 +17,16 @@
 					<div class="pull-left">
 						<label>กรุณาเลือกปีงบประมาณ : </label>
 						<select name="fiscalyear" id="fiscalyear">
-							<option>2553</option>
-							<option>2554</option>
-							<option>2555</option>
-							<option>2556</option>
-							<option>2557</option>
-							<option>2558</option>
-							<option>2559</option>
-							<option>2560</option>
-							<option>2561</option>
-							<option>2562</option>
-							<option selected="selected">2563</option>
+							 <c:forEach var="year" items="${fiscalYears}">
+	         						<option value="${year}">${year}</option>
+	      					 </c:forEach>
 						</select>
 					</div>
 					<div class="pull-left">
 						<label>กรุณาเลือกหมวดงบประมาณ : </label>
 						<select name="budgetTypeSlt" id="budgetTypeSlt">
-							<option value="1">งบบุคลากร</option>
+							<option value="0">กรุณาเลือกหมวดงบประมาณ</option>
+<!-- 							<option value="1">งบบุคลากร</option>  -->
 							<option value="2">งบดำเนินงาน</option>
 							<option value="3">งบลงทุน</option>
 							<option value="4">งบอุดหนุน</option>
@@ -52,8 +45,11 @@
 			
 		</div>
 	</div>
-	<div class="row" id="loading" style="display: none;"> Loading Report <img src="<c:url value='/resources/images/loading3.gif'/>"/> </div>
 </div>
+<script id="LoadingReportTemplate" type="text/x-handlebars-template">
+	<div id="loading"> Loading Report <img src="<c:url value='/resources/images/loading3.gif'/>"/> </div>
+</script>
+
 <script id="tableTemplate" type="text/x-handlebars-template">
 <table class="table table-bordered table-striped budget">
 	<thead>
@@ -70,7 +66,7 @@
 			<td style='padding-top: 15px; text-align:center; border-bottom: 2px darkSeaGreen solid;'>
 				 <b>{{top.orgAbbr}}</b></td>
 			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'><b>{{formatDecimal top.budgetAllocated}}</b></td>
-			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'><b>{{formatDecimalSum top.budgetApproved top.budgetUsed}}</b></td>
+			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'><b>{{formatDecimalSum 0 top.budgetUsed}}</b></td>
 			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'><b>{{allocMinusUsed top}}</b></td>
 			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'><b>{{formatDecimal top.percentUsed}}</b></td>
 		</tr>
@@ -79,24 +75,24 @@
 			<td style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'>
 				<a href="#" class="chevron"><i id="keywordChevron_{{id}}" class="icon-chevron-right"></i> {{orgAbbr}}</a></td>
 			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'>{{formatDecimal budgetAllocated}}</td>
-			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'>{{formatDecimalSum budgetApproved budgetUsed}}</td>
+			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'>{{formatDecimalSum 0 budgetUsed}}</td>
 			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'>{{allocMinusUsed this}}</td>
 			<td class="rightAlignNumber" style='padding-top: 15px; border-bottom: 2px darkSeaGreen solid;'>{{formatDecimal percentUsed}}</td>
 		</tr>
 		
 			{{#each subProjectCollection}}
 				<tr style="display:none">
-					<td style='padding-left: 40px''>
+					<td style='padding-left: 40px'>
 						{{abbr}} {{name}}
 					</td>	
 					<td class="rightAlignNumber">{{formatDecimal budgetAllocated}}</td>
-					<td class="rightAlignNumber">{{formatDecimalSum budgetApproved budgetUsed}}</td>
+					<td class="rightAlignNumber">{{formatDecimalSum 0 budgetUsed}}</td>
 					<td class="rightAlignNumber">{{allocMinusUsed this}}</td>
 					<td class="rightAlignNumber">{{formatDecimal percentUsed}}</td>
 				</tr>
 				{{#each budgetAllocationItems}}
 				<tr style="display:none">
-					<td style='padding-left: 80px''>
+					<td style='padding-left: 80px'>
 						{{description}} {{qty}} {{unit}} {{#if pcmNumber}} <br/>   -  {{pcmNumber}} วันที่ {{pcmCreatedDate}} {{/if}}
 					</td>	
 					<td class="rightAlignNumber"></td>
@@ -122,9 +118,11 @@ var orgBudgetCollection = new SubProjectBudgetCollection();
 Handlebars.registerHelper("allocMinusUsed", function(row) {
 	var budgetAllocated = row.budgetAllocated;
 	var budgetApproved = row.budgetApproved;
+	var budgetUsed = row.budgetUsed;
+	if(row.budgetUsed == null || isNaN(row.budgetUsed)) budgetUsed = 0;
 	if(row.budgetAllocated == null || isNaN(row.budgetAllocated)) budgetAllocated = 0;
 	if(row.budgetApproved == null || isNaN(row.budgetApproved)) budgetApproved = 0;
-	return $.formatNumber(budgetAllocated - budgetApproved, {format:"#,##0.00", locale:"us"});
+	return $.formatNumber(budgetAllocated - budgetUsed, {format:"#,##0.00", locale:"us"});
 });
 
 Handlebars.registerHelper("formatDate", function(date) {
@@ -135,6 +133,7 @@ Handlebars.registerHelper("formatDate", function(date) {
 $(document).ready(function () {
 	var ListView = Backbone.View.extend({
 		template: Handlebars.compile($("#tableTemplate").html()),
+		loadingReportTemplate : Handlebars.compile($("#LoadingReportTemplate").html()),
 		el: '#table',
 		events: {
 			"click a.chevron": "chevronClick",
@@ -150,7 +149,13 @@ $(document).ready(function () {
 			return false;
 			
 		},
-	
+		renderLoading: function() {
+			this.$el.html(this.loadingReportTemplate());
+		},
+		emptyTable: function() {
+			this.$el.empty();	
+		},
+		
 		render: function() {
 			var json = orgBudgetCollection.toJSON();
 			json.top=allSubProjectBudget.toJSON();
@@ -179,8 +184,15 @@ $(document).ready(function () {
 		
 		changeSlt: function(e) {
 			
+			listView.renderLoading();
+			
+			
 			this.fiscalYear = $('#fiscalyear').val();
 			this.budgetTypeId  = $('#budgetTypeSlt').val();
+			
+			if(this.budgetTypeId == 0) {
+				listView.emptyTable()	
+			} else {
 			
 			
 			allAllocated = 0.0;
@@ -201,9 +213,14 @@ $(document).ready(function () {
 							totalAllocated += sp.get('budgetAllocated');
 							totalApproved += sp.get('budgetApproved');
 							totalUsed += sp.get('budgetUsed');
+//							sp.set('percentUsed', 
+//									( (parseFloat(sp.get('budgetApproved')) + parseFloat(sp.get('budgetUsed'))) 
+//											/ parseFloat(sp.get('budgetAllocated')) ) * 100);
+
 							sp.set('percentUsed', 
-									( (parseFloat(sp.get('budgetApproved')) + parseFloat(sp.get('budgetUsed'))) 
+									 ( (parseFloat(sp.get('budgetUsed'))) 
 											/ parseFloat(sp.get('budgetAllocated')) ) * 100);
+							
 							
 						});
 						
@@ -213,7 +230,8 @@ $(document).ready(function () {
 						orgSpb.set('budgetApproved', totalApproved);
 						orgSpb.set('orgAbbr', org[0].get('orgAbbr'));
 						
-						orgSpb.set('percentUsed', ((parseFloat(totalApproved) + parseFloat(totalUsed))/parseFloat(totalAllocated))*100);
+//						orgSpb.set('percentUsed', ((parseFloat(totalApproved) + parseFloat(totalUsed))/parseFloat(totalAllocated))*100);
+						orgSpb.set('percentUsed', ((parseFloat(totalUsed))/parseFloat(totalAllocated))*100);
 						
 						
 						var spb = new SubProjectBudgetCollection();
@@ -242,11 +260,13 @@ $(document).ready(function () {
 					allSubProjectBudget.set('budgetAllocated', allAllocated);
 					allSubProjectBudget.set('budgetApproved', allApproved);
 					allSubProjectBudget.set('budgetUsed', allUsed);
-					allSubProjectBudget.set('percentUsed', ( (allApproved + allUsed) / allAllocated ) * 100.0 ) ;
+//					allSubProjectBudget.set('percentUsed', ( (allApproved + allUsed) / allAllocated ) * 100.0 ) ;
+					allSubProjectBudget.set('percentUsed', ( allUsed / allAllocated ) * 100.0 ) ;
 					
 					listView.render();	
 				}
 			});
+			}
 		}
 		
 	});

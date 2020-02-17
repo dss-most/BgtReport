@@ -10,14 +10,9 @@
 			<form class="well">
 				<label>กรุณาเลือกปีงบประมาณ : </label>
 				<select class="span4" name="fiscalYear" id="fiscalYear">
-							<option>2553</option>
-							<option>2554</option>
-							<option>2555</option>
-							<option>2556</option>
-							<option>2557</option>
-							<option>2558</option>
-							<option>2559</option>
-							<option selected="selected">2560</option>
+							<c:forEach var="year" items="${fiscalYears}">
+	         						<option value="${year}">${year}</option>
+	      					 </c:forEach>
 				</select>
 				<label>กรุณาเลือกงบรายจ่าย
 				<span id="expenseNote" class="label label-important"

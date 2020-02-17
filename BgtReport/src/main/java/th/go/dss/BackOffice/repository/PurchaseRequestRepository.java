@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 
+import th.go.dss.BackOffice.model.PCM.PurchaseApprovalItemized;
 import th.go.dss.BackOffice.model.PCM.PurchaseRequest;
 
 public interface PurchaseRequestRepository extends
@@ -16,7 +17,7 @@ public interface PurchaseRequestRepository extends
 			"from PurchaseRequest purchaseRequest " +
 			" 	inner join purchaseRequest.subProject subProject " +
 			"	inner join subProject.project project " +
-			"	left outer join purchaseRequest.purchaseApprovals purchaseApprovals " +
+			"	inner join purchaseRequest.purchaseApprovals purchaseApprovals " +
 			"where subProject.abbr = :subProjectAbbr " +
 			"	AND purchaseRequest.status.id <> 21" +
 			"	AND purchaseRequest.cancelFlag <> '1' " +
@@ -37,6 +38,28 @@ public interface PurchaseRequestRepository extends
 			"	AND project.fiscalYear = :fiscalYear " +
 			"")
 	Page<PurchaseRequest> findNotYetApproveOrBudgetUsage(
+			@Param("fiscalYear") Integer fiscalYear,
+			@Param("subProjectAbbr") String subProjectAbbr, 
+			Pageable pageSpecification);
+	
+	
+	@Query(""
+			+ "SELECT purchaseApprovalItemized "
+			+ "FROM  PurchaseApprovalItemized purchaseApprovalItemized "
+			+ "	inner join purchaseApprovalItemized.purchaseRequest purchaseRequest "
+			+ "	inner join purchaseRequest.subProject subProject "
+			+ " inner join subProject.project project "
+			+ "WHERE  subProject.abbr = :subProjectAbbr  " 
+			+ "	AND purchaseRequest.status.id <> 21 " 
+			+ "	AND purchaseRequest.cancelFlag <> '1' "
+			+ " AND purchaseApprovalItemized.id not in  "
+			+ " ( select budgetUsage_1.purchaseApprovalItemized.id "
+			+ "		from BudgetUsage budgetUsage_1"
+			+ "		 where budgetUsage_1.purchaseApprovalItemized.id is not null"
+			+ " ) "
+			+ "AND project.fiscalYear = :fiscalYear  "
+			)
+	Page<PurchaseApprovalItemized> findPurchaseApprovalItemizedNotYetApproveOrBudgetUsage(
 			@Param("fiscalYear") Integer fiscalYear,
 			@Param("subProjectAbbr") String subProjectAbbr, 
 			Pageable pageSpecification);

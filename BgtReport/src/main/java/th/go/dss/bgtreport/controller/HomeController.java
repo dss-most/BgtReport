@@ -43,10 +43,17 @@ public class HomeController {
 	/**
 	 * Simply selects the home view to render by returning its name.
 	 */
+	
+	private void addFiscalYearsToModel(Model model) {
+		List<Integer> fiscalYears = subProjectRepository.findFiscalYear();
+		model.addAttribute("fiscalYears", fiscalYears);
+		
+	}
+	
 	@RequestMapping(value = {"/","/home.html"}, method = RequestMethod.GET)
 	public String home(Model model) {
 		
-		logger.debug("xxx");
+		this.addFiscalYearsToModel(model);
 		// do nothing for now 
 		model.addAttribute("homeActive", true);
 		model.addAttribute("now", thaiShortDate.format(new Date()));
@@ -56,6 +63,7 @@ public class HomeController {
 	
 	@RequestMapping(value="/detail4.html", method =RequestMethod.GET)
 	public String detail4(Model model) {
+		this.addFiscalYearsToModel(model);
 		model.addAttribute("detail4Active", true);
 		return "detail4";
 	}
@@ -63,6 +71,7 @@ public class HomeController {
 	@RequestMapping(value="/detail1.html")
 	public String detail1(Model model) {
 		// detail tab
+		this.addFiscalYearsToModel(model);
 		model.addAttribute("detail1Active", true);
 		return "detail1";
 	}
@@ -70,12 +79,14 @@ public class HomeController {
 	@RequestMapping(value="/detail2.html")
 	public String detail2(Model model) {
 		// detail tab
+		this.addFiscalYearsToModel(model);
 		model.addAttribute("detail2Active", true);
 		return "detail2";
 	}
 	
 	@RequestMapping(value="/detail3.html")
 	public String detail3(Model model) {
+		this.addFiscalYearsToModel(model);
 		// detail tab
 		List<Organization> organizations = subProjectRepository.findOrganizationHasSubProjectByFiscalYear(2558);
 		
@@ -92,6 +103,7 @@ public class HomeController {
 	@RequestMapping(value="/listing") 
 	public String listing(Model model, 
 			@RequestParam (required=false) Integer fiscalYear) {
+		this.addFiscalYearsToModel(model);
 		logger.info("fiscalYear = " + fiscalYear);
 		return "listing";
 	}
