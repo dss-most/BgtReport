@@ -1,4 +1,4 @@
-﻿package th.go.dss.bgtreport.controller;
+package th.go.dss.bgtreport.controller;
 
 
 import java.text.SimpleDateFormat;

@@ -1,10 +1,10 @@
-﻿package th.go.dss.BackOffice.model.BGT;
+package th.go.dss.BackOffice.model.BGT;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public enum BudgetCodeType {
-	
+
 	ทุกหมวดรายจ่าย(0),			
 	เงินเดือนและค่าจ้างประจำ(1),	// 2009
 	ค่าตอบแทนและใช้สอย(2),		// 2023
@@ -37,24 +37,6 @@ public enum BudgetCodeType {
 		}
 	}
 	
-	public String toString() {
-		switch (id) {
-		case 0:
-			return "ทุกหมวดรายจ่าย";
-		case 1: 
-			return "งบเงินเดือนและค่าจ้างประจำ";
-		case 2:
-			return "งบค่าตอบแทนและใช้สอย";
-		case 3:
-			return "งบลงทุน";
-		case 4:
-			return "งบอุดหนุน";
-		case 5:
-			return "งบรายจ่ายอื่น";
-		default:
-			return null;
-		}
-	}
 
 	public String searchString() {
 		switch (id) {
