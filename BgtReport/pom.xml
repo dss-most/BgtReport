@@ -7,7 +7,7 @@
 	<description>Bgt Web Report</description>
 	<packaging>war</packaging>
 	<name>BgtReport</name>
-	<version>1.1.0-RELEASE</version>
+	<version>1.1.1-RELEASE</version>
 	
 	<repositories>
     	<repository>
@@ -301,41 +301,28 @@
 		</dependency>
 	</dependencies>
 	<build>
+		<finalName>olp##${timestamp}-${project.version}-${buildNumber}</finalName>
 		<plugins>
 			<plugin>
-                <artifactId>maven-eclipse-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <additionalProjectnatures>
-                        <projectnature>org.springframework.ide.eclipse.core.springnature</projectnature>
-                    </additionalProjectnatures>
-                    <additionalBuildcommands>
-                        <buildcommand>org.springframework.ide.eclipse.core.springbuilder</buildcommand>
-                    </additionalBuildcommands>
-                    <downloadSources>true</downloadSources>
-                    <downloadJavadocs>true</downloadJavadocs>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>${java-version}</source>
-                    <target>${java-version}</target>
-                    <compilerArgument>-Xlint:all</compilerArgument>
-                    <showWarnings>true</showWarnings>
-                    <showDeprecation>true</showDeprecation>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>exec-maven-plugin</artifactId>
-                <version>1.2.1</version>
-                <configuration>
-                    <mainClass>org.test.int1.Main</mainClass>
-                </configuration>
-            </plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>buildnumber-maven-plugin</artifactId>
+				<version>1.4</version>
+				<executions>
+					<execution>
+						<phase>validate</phase>
+						<goals>
+							<goal>create</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<doCheck>false</doCheck>
+					<doUpdate>false</doUpdate>
+					<revisionOnScmFailure>DEVELOPMENT</revisionOnScmFailure>
+					<shortRevisionLength>7</shortRevisionLength>
+					<timestampFormat>{0,date,yyyyMMdd_HHmmss}</timestampFormat>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 </project>
