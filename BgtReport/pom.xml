@@ -7,9 +7,27 @@
 	<description>Bgt Web Report</description>
 	<packaging>war</packaging>
 	<name>BgtReport</name>
-	<version>1.0.0-BUILD-SNAPSHOT</version>
+	<version>1.1.0-RELEASE</version>
+	
+	<repositories>
+    	<repository>
+    		<id>dss release</id>	
+    		<name>DSS Nexus</name>
+    		<url>https://nexus.dss.go.th/repository/maven-public/</url>
+    	</repository>	
+    </repositories>
+    <pluginRepositories>
+    	<pluginRepository>
+    		<id>dss release</id>	
+    		<name>DSS Nexus</name>
+    		<url>https://nexus.dss.go.th/repository/maven-public/</url>    	
+    	</pluginRepository>
+    </pluginRepositories>
+	
 	<properties>
 		<java-version>1.6</java-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 		<org.springframework-version>3.1.2.RELEASE</org.springframework-version>
 		<org.springframework.data-version>1.1.0.RELEASE</org.springframework.data-version>
     	<spring.security.version>3.1.2.RELEASE</spring.security.version>
