@@ -7,7 +7,12 @@
 	<description>Bgt Web Report</description>
 	<packaging>war</packaging>
 	<name>BgtReport</name>
-	<version>1.1.1-RELEASE</version>
+	<version>1.1.2-RELEASE</version>
+	
+	<scm>
+    	<connection>scm:git:https://github.com/dss-most/BgtReport.git</connection>
+    	<url>https://github.com/dss-most/BgtReport.git</url>
+	</scm>
 	
 	<repositories>
     	<repository>
