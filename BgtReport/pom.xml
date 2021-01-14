@@ -48,7 +48,7 @@
     	<ehcache.version>2.5.2</ehcache.version>
     	<org.apache.tiles-version>2.2.2</org.apache.tiles-version>
     	<commons.dbcp.version>1.4</commons.dbcp.version>
-    	<apache.poi-version>3.8</apache.poi-version>
+    	<apache.poi-version>4.1.2</apache.poi-version>
     	<jackson-jaxrs-version>1.9.9</jackson-jaxrs-version>
     	<querydsl.version>2.7.0</querydsl.version>
     	<cglib-version>2.2.2</cglib-version>
